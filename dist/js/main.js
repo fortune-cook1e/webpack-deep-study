@@ -14,7 +14,6 @@
       );
     },
   };
-
   // The module cache
   var __webpack_module_cache__ = {};
 
@@ -258,8 +257,6 @@
       chunkLoadingGlobal.push.bind(chunkLoadingGlobal)
     );
   })();
-
-  /************************************************************************/
 
   // startup
   // Load entry module and return exports
