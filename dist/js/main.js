@@ -1,6 +1,13 @@
 (() => {
   // webpackBootstrap
   'use strict';
+
+  // webpack 集中管理所有模块的map
+  // key 为模块地址，value 为 模块 eval执行函数
+  // value 每个函数的参数为：
+  // 1. module 对象(每一个模块都会生成一个携带 exports 的 对象)
+  // 2. module.exports 对象
+  // 3. webpack内部实现 CommonJs 的 require 方法
   var __webpack_modules__ = {
     './src/a.js': (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
       eval(
@@ -10,14 +17,18 @@
 
     './src/index.js': (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
       eval(
-        "__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./a */ \"./src/a.js\");\n\nvar a = 10,\n    b = 20;\nvar result = (0,_a__WEBPACK_IMPORTED_MODULE_0__.add)(a, b);\nvar rootElement = document.getElementById('app');\nvar btnElement = document.createElement('button');\nbtnElement.id = 'btn';\nbtnElement.textContent = 'this is a button';\nrootElement.appendChild(btnElement);\nvar btn = document.getElementById('btn');\n\nbtn.onclick = function () {\n  __webpack_require__.e(/*! import() */ \"src_b_js\").then(__webpack_require__.bind(__webpack_require__, /*! ./b */ \"./src/b.js\")).then(function (res) {\n    res.addDouble(a, b);\n  });\n};\n\n//# sourceURL=webpack://webpack-deep/./src/index.js?"
+        "__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./a */ \"./src/a.js\");\n\nvar a = 10,\n    b = 20;\nvar rootElement = document.getElementById('app');\nvar btnElement = document.createElement('button');\nbtnElement.id = 'btn';\nbtnElement.textContent = 'this is a button';\nrootElement.appendChild(btnElement);\nvar btn = document.getElementById('btn');\n\nbtn.onclick = function () {\n  __webpack_require__.e(/*! import() */ \"src_b_js\").then(__webpack_require__.bind(__webpack_require__, /*! ./b */ \"./src/b.js\")).then(function (res) {\n    var result = res.addDouble(a, b);\n    btnElement.textContent = result;\n  });\n};\n\n//# sourceURL=webpack://webpack-deep/./src/index.js?"
       );
     },
   };
+  /************************************************************************/
   // The module cache
+  // 用于缓存模块的执行结果
   var __webpack_module_cache__ = {};
 
   // The require function
+  // 用于实现CommonJs的require方法
+  // 返回的结果是 对应模块的 导出对象
   function __webpack_require__(moduleId) {
     // Check if module is in cache
     var cachedModule = __webpack_module_cache__[moduleId];
@@ -32,6 +43,7 @@
     });
 
     // Execute the module function
+    // 执行模块对应的函数：本质上就是执行 eval 函数
     __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 
     // Return the exports of the module
@@ -44,6 +56,8 @@
   /* webpack/runtime/define property getters */
   (() => {
     // define getter functions for harmony exports
+    // TIP:给模块暴露出的方法 设置 getter
+    // 例如 a.js 导出了 add()方法，那么给 a.js 模块对象的 module.exports 对象设置 key 为 add，getter则返回 add() 函数
     __webpack_require__.d = (exports, definition) => {
       for (var key in definition) {
         if (__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
@@ -58,6 +72,11 @@
     __webpack_require__.f = {};
     // This file contains only the entry chunk.
     // The chunk loading function for additional chunks
+
+    // 异步加载模块
+    // f[key] 其实就是对应 f.j 函数
+    // 对每一个模块执行 f.j 函数
+
     __webpack_require__.e = chunkId => {
       return Promise.all(
         Object.keys(__webpack_require__.f).reduce((promises, key) => {
@@ -152,7 +171,7 @@
 
   /* webpack/runtime/publicPath */
   (() => {
-    __webpack_require__.p = '/';
+    __webpack_require__.p = './';
   })();
 
   /* webpack/runtime/jsonp chunk loading */
@@ -162,15 +181,24 @@
     // object to store loaded and loading chunks
     // undefined = chunk not loaded, null = chunk preloaded/prefetched
     // [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+
+    // TIP: 这里用于存储已经加载过 or 正在加载的 异步模块
+    // key 为 chunkId
+    // value 为以下几种：
+    // undefined：异步模块还没有加载
+    // [resolve,rejecet,promise]: 异步模块正在加载(promise)
+    // 0：异步模块已经加载完
     var installedChunks = {
       main: 0,
     };
 
+    // 用JSONP的方法加载javascript
     __webpack_require__.f.j = (chunkId, promises) => {
       // JSONP chunk loading for javascript
       var installedChunkData = __webpack_require__.o(installedChunks, chunkId)
         ? installedChunks[chunkId]
         : undefined;
+
       if (installedChunkData !== 0) {
         // 0 means "already installed".
 
@@ -207,6 +235,7 @@
                 }
               }
             };
+
             __webpack_require__.l(url, loadingEnded, 'chunk-' + chunkId, chunkId);
           } else installedChunks[chunkId] = 0;
         }
@@ -225,6 +254,7 @@
 
     // install a JSONP callback for chunk loading
     var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+      console.log({ data, parentChunkLoadingFunction });
       var [chunkIds, moreModules, runtime] = data;
       // add "moreModules" to the modules object,
       // then flag all "chunkIds" as loaded and fire callback
@@ -249,6 +279,8 @@
       }
     };
 
+    // 这里对 window.webpackChunkwebpack_deep 变量的push方法进行重写
+    // 每次异步模块被加载时，都会先触发 push()方法 从而触发 webpackJsonpCallback
     var chunkLoadingGlobal = (self['webpackChunkwebpack_deep'] =
       self['webpackChunkwebpack_deep'] || []);
     chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
@@ -257,6 +289,8 @@
       chunkLoadingGlobal.push.bind(chunkLoadingGlobal)
     );
   })();
+
+  /************************************************************************/
 
   // startup
   // Load entry module and return exports
